@@ -4,17 +4,21 @@ import com.shmkane.sellstick.configs.SellstickConfig;
 import com.shmkane.sellstick.utilities.ChatUtils;
 import com.shmkane.sellstick.utilities.CommandUtils;
 import com.shmkane.sellstick.utilities.ConvertUtils;
+import com.shmkane.sellstick.utilities.ItemUtils;
+import com.shmkane.sellstick.utilities.EventUtils;
+import com.shmkane.sellstick.utilities.MergeUtils;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 
-public class SellStickCommand implements CommandExecutor, TabExecutor {
+public class SellStickCommand implements TabExecutor {
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
@@ -29,6 +33,12 @@ public class SellStickCommand implements CommandExecutor, TabExecutor {
             }
             if (sender.hasPermission("sellstick.convert")) {
                 commands.add("convert");
+            }
+            if (sender.hasPermission("sellstick.merge")) {
+                commands.add("merge");
+            }
+            if (sender.hasPermission("sellstick.toggle")) {
+                commands.add("toggle");
             }
         } else if (args.length == 2) {
             for(Player player : SellStick.getInstance().getServer().getOnlinePlayers()){
@@ -69,12 +79,83 @@ public class SellStickCommand implements CommandExecutor, TabExecutor {
             }
         }
 
+        // Convert Command
         if (subCommand.equals("convert") && sender.hasPermission("sellstick.convert")) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage("Only players can use this command.");
                 return false;
             }
             ConvertUtils.convertSellStick((Player) sender);
+            return true;
+        }
+
+        // Merge Command
+        if (subCommand.equals("merge") && sender.hasPermission("sellstick.merge")) {
+            // Get max amount of uses for a new sellstick
+            int maxAmount = SellStick.getInstance().getMaxAmount();
+
+            // Get player
+            Player player = (Player) sender;
+
+            // Get all sellsticks in player inventory
+            ItemStack[] sellsticks = MergeUtils.searchInventory(player);
+
+            // Check if player has any sellsticks
+            if (sellsticks.length == 0) {
+                ChatUtils.sendMsg(player, "<red>You have no sellsticks in your inventory!", true);
+                return false;
+            }
+
+            // Check if player has at least 2 sellsticks
+            if (sellsticks.length == 1) {
+                ChatUtils.sendMsg(player, "<yellow>You need at least 2 sellsticks to merge!", true);
+                return false;
+            }
+
+            // Sort sellsticks by their uses
+            ItemStack[] sortedSellsticks = MergeUtils.sortSellsticksByUses(sellsticks);
+
+            // Sum the uses of all sellsticks
+            int usesSum = MergeUtils.sumSellStickUses(sortedSellsticks, maxAmount);
+
+            // Check if sellsticks exceed max cap.
+            int totalUsesBeforeMerge = 0;
+            for (ItemStack sellstick : sortedSellsticks) {
+                totalUsesBeforeMerge += ItemUtils.getUses(sellstick);
+            }
+
+            if (totalUsesBeforeMerge == usesSum) {
+                // Remove all sellsticks from player inventory
+                MergeUtils.removeSortedSellsticks(player, sortedSellsticks, maxAmount);
+
+                // Give a new sellstick with a number of uses equalling usesSum
+                CommandUtils.giveSellStick(player, usesSum);
+
+                ChatUtils.sendMsg(player, "<green>All sellsticks merged successfully!", true);
+
+                return true;
+            } else {
+                ChatUtils.sendMsg(player, "<red>Sellsticks exceed the maximum allowed merged uses.", true);
+                return false;
+            }
+        }
+
+        // Toggle Command
+        if (subCommand.equals("toggle") && sender.hasPermission("sellstick.toggle")) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("Only players can use this command.");
+                return false;
+            }
+
+            Player player = (Player) sender;
+            UUID playerUUID = player.getUniqueId();
+            EventUtils.togglePlayerPreference(playerUUID);
+
+            boolean newPreference = EventUtils.getPlayerPreference(playerUUID);
+            String message = newPreference ? "Sell messages will now be sent in chat."
+                    : "Sell messages will now be sent in the action bar.";
+            ChatUtils.sendMsg(player, message, true);
+
             return true;
         }
 

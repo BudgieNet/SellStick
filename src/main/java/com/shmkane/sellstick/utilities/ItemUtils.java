@@ -21,10 +21,10 @@ public class ItemUtils {
 
     // Make an ItemStack Glow
     public static ItemStack glow(ItemStack itemStack) {
+        itemStack.addUnsafeEnchantment(Enchantment.FORTUNE, 1);
         ItemMeta itemMeta = itemStack.getItemMeta();
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemStack.setItemMeta(itemMeta);
-        itemStack.addUnsafeEnchantment(Enchantment.FORTUNE, 1);
         return itemStack;
     }
 

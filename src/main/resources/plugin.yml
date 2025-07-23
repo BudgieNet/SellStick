@@ -2,7 +2,7 @@ name: SellStick
 main: com.shmkane.sellstick.SellStick
 version: "${project.version}"
 api-version: 1.20
-author: shmkane, TreemanKing
+author: shmkane, TreemanKing, 1UnderTheSun
 website: https://github.com/shmkane/SellStick
 depend: [Essentials, Vault]
 softdepend: [ShopGuiPlus]
@@ -10,13 +10,15 @@ softdepend: [ShopGuiPlus]
 commands:
   sellstick:
     description: Sell all items in a chest, barrel or shulker box easily!
+    aliases: [ss]
+    permission: sellstick.use
 
 permissions:
   sellstick.reload:
     default: op
     description: To reload the plugin
   sellstick.use:
-    default: op
+    default: true
     description: To use a sellstick
   sellstick.give:
     default: op
@@ -24,4 +26,9 @@ permissions:
   sellstick.convert:
     default: op
     description: Allows players to convert their old sellsticks into new ones
-
+  sellstick.merge:
+    default: true
+    description: Allows players to merge all sellsticks in their inventory into one
+  sellstick.toggle:
+    default: true
+    description: Allows players to toggle sell messages from chat to action bar
