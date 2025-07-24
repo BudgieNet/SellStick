@@ -16,30 +16,21 @@ import java.util.logging.Level;
 
 
 public class ChatUtils {
-    // Send String Messages
+    // Send player messages
     public static void sendMsg(CommandSender sender, String message) {
         sendMsg(sender, message, true);
     }
-    public static void sendMsg(CommandSender sender, String message, boolean showPrefix) {
-        sendMsg(sender, toTextComp(message), showPrefix);
-    }
-    // Send Component Messages
+    public static void sendMsg(CommandSender sender, String message, boolean showPrefix) { sendMsg(sender, toTextComp(message), showPrefix); }
     public static void sendMsg(CommandSender sender, TextComponent message, boolean showPrefix) {
-        if (sender == null || sender instanceof ConsoleCommandSender) {
-            log(Level.INFO, message);
-        } else if (sender instanceof Player) {
-            if (showPrefix) message = toTextComp(SellstickConfig.prefix)
-                    .append(message);
-            sendMsg(sender, message);
-        }
+        if (showPrefix) message = toTextComp(SellstickConfig.prefix).append(message);
+        sendMsg(sender, message);
     }
     public static void sendMsg(CommandSender sender, TextComponent message) {
-        //if (message == null || message.content().isBlank()) return;
-        if (sender == null || sender instanceof ConsoleCommandSender) {
-            log(Level.INFO, message);
-        } else if (sender instanceof Player) {
+        if (sender instanceof Player) {
             sender.sendMessage(message);
+            return;
         }
+        log(Level.INFO, message);
     }
 
     // Send Action Bar Messages
@@ -48,7 +39,7 @@ public class ChatUtils {
         sender.sendActionBar(msg);
     }
 
-    // Server Logger
+    // Server console messages
     public static void error(String message) { log(Level.SEVERE, message); }
     public static void error(TextComponent message) { log(Level.SEVERE, message); }
     public static void log(String message) { log(Level.INFO, message); }
@@ -64,7 +55,10 @@ public class ChatUtils {
      * @param string The string to parse.
      * @return The formated TextComponent.
      */
-    public static TextComponent toTextComp(String string) {
-        return LegacyComponentSerializer.builder().character('&').hexCharacter('#').build().deserialize(string);
+    static TextComponent toTextComp(String string) {
+        if (string.contains("&"))
+            return LegacyComponentSerializer.builder().character('&').hexCharacter('#').build().deserialize(string);
+        else
+            return (TextComponent) MiniMessage.miniMessage().deserialize(string);
     }
 }
