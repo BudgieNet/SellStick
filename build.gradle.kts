@@ -28,8 +28,8 @@ repositories {
 }
 
 dependencies {
-    api(libs.de.tr7zw.item.nbt.api)
-    compileOnly(libs.dev.jorel.commandapi.bukkit.core)
+    compileOnly("de.tr7zw:item-nbt-api-plugin:2.15.1")
+    compileOnly("dev.jorel:commandapi-bukkit-core:10.0.1")
     compileOnly(libs.io.papermc.paper.paper.api)
     compileOnly(libs.com.github.milkbowl.vaultapi)
     compileOnly(libs.net.ess3.essentialsx)

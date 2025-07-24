@@ -36,12 +36,11 @@ public class AdminCommands {
     }
 
     public void toggle(CommandSender sender, CommandArguments arguments) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             sender.sendMessage("Only players can use this command.");
             return;
         }
 
-        Player player = (Player) sender;
         UUID playerUUID = player.getUniqueId();
         EventUtils.togglePlayerPreference(playerUUID);
 
@@ -55,11 +54,9 @@ public class AdminCommands {
     public void give(CommandSender sender, CommandArguments args) {
         final Player target = (Player) args.get("target");
         final Integer numSticks = (Integer) args.get("amount");
-        final String usesArg = (String) args.get("uses");
+        Integer uses = (Integer) args.get("uses");
 
-        if (target == null || numSticks == null || usesArg == null) return;
-
-        final int uses = Integer.parseInt(usesArg);
+        if (target == null || numSticks == null || uses == null) return;
 
         // Give sell sticks
         for (int i = 0; i < numSticks; i++) {
