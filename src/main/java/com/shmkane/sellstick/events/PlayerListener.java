@@ -1,9 +1,14 @@
 package com.shmkane.sellstick.events;
 
+import com.shmkane.sellstick.SellStick;
 import com.shmkane.sellstick.configs.SellstickConfig;
+import com.shmkane.sellstick.stick.StickHandler;
 import com.shmkane.sellstick.utilities.*;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.block.Block;
+import org.bukkit.block.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -12,95 +17,120 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.Objects;
+
+import static com.shmkane.sellstick.utilities.ChatUtils.log;
 
 public class PlayerListener implements Listener {
 
-    @EventHandler(priority = EventPriority.MONITOR) // Checks if other plugins are using the event
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onSellstickUse(PlayerInteractEvent event) {
+        // Execute quick checks
+        if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK)) return;
+        if (event.getClickedBlock() == null) return;
+        if (event.getMaterial() != SellstickConfig.material) return;
+        if (event.getItem() == null || !event.getItem().hasItemMeta()) return;
+
+        // Possibly a sellstick - continue
+
+        if (!(event.getClickedBlock().getState() instanceof Container container)) return;
+
         Player player = event.getPlayer();
-        Block block = event.getClickedBlock();
         ItemStack sellStick = player.getInventory().getItemInMainHand();
 
-        // Player preference for sell message
-        boolean sendInChat = EventUtils.getPlayerPreference(player.getUniqueId());
-
-        if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK)) return;   // Must right-click
-        if (sellStick.getItemMeta() == null || block == null) return;   // Return if empty item
-
-        // Convert old sellticks
-        ItemMeta meta = sellStick.getItemMeta();
-        if (meta != null && meta.hasDisplayName()) {
-            String name = meta.displayName() != null ? meta.displayName().toString() : "";
-            if (name.startsWith("§e✦ §e§lSellStick") || name.startsWith("§6§lSellStick")) {
-                ConvertUtils.convertSellStick(player);
-                return;
-            }
+        // Convert old sellstick
+        ItemStack newStick = StickHandler.convertOldSellStick(sellStick);
+        if (newStick != null) {
+            player.getInventory().setItemInMainHand(newStick);
+            ChatUtils.sendMsg(player, "<green>Your old sell stick has been updated.", true);
+            event.setCancelled(true);
+            return;
         }
 
-        // Replace unstackable sellstick with stackable one
-        if (ConvertUtils.makeSellStickStackable(player, sellStick)) return;
-
-        if (event.getPlayer().isSneaking()) return;             // Check Player is not sneaking
-        if (sellStick.getType().isAir()) return;                // Check if Item is air
-        if (!ItemUtils.matchSellStickUUID(sellStick)) return;   // Check if Item has UUID of SellStick
-        if (!EventUtils.didClickSellStickBlock(block)) return;  // Check if clicked block is a container
-
         // Check if another plugin is cancelling the event
-        if (event.useInteractedBlock() == Event.Result.DENY){
+        if (event.useInteractedBlock() == Event.Result.DENY) {
             ChatUtils.sendMsg(player, SellstickConfig.territoryMessage, true);
             return;
         }
 
         event.setCancelled(true); // Cancel opening the chest - confirmed player is using a sellstick
 
-        // Check sellstick material
-        if (!ItemUtils.matchSellStickMaterial(sellStick)) {
-            // Replace the item if the material does not match
-            player.getInventory().removeItem(sellStick);
-            CommandUtils.giveSellStick(player, ItemUtils.getUses(sellStick));
-            return;
-        }
-        // Checks if Player has the permission to use a SellStick
+        // Check permission
         if (!player.hasPermission("sellstick.use")) {
             ChatUtils.sendMsg(player, SellstickConfig.noPerm, true);
             return;
         }
+
         // Check if player is only holding 1 stick
         if (sellStick.getAmount() != 1) {
             ChatUtils.sendMsg(player, SellstickConfig.holdOneMessage, true);
             return;
         }
 
-        // Get total value of container
-        double total = EventUtils.calculateContainerWorth(event);
+        // Player preference for sell message
+        boolean sendInChat = EventUtils.getPlayerPreference(player.getUniqueId());
 
         // Nothing worth selling
-        if (total <= 0) {
+        if (EventUtils.getContainerWorth(container, false) <= 0d) {
             if (sendInChat) {
-                ChatUtils.sendMsg(player, SellstickConfig.nothingWorth, true);
+                ChatUtils.sendMsg(player, SellstickConfig.nothingWorth);
             } else {
                 ChatUtils.sendActionBar(player, SellstickConfig.nothingWorth);
             }
-            event.setCancelled(true);
             return;
         }
 
-        // Sell the items
-        if (!EventUtils.saleEvent(player, sellStick, total)) {
-            if (sendInChat) {
-                ChatUtils.sendMsg(player, SellstickConfig.nothingWorth, true);
-            } else {
-                ChatUtils.sendActionBar(player, SellstickConfig.nothingWorth);
-            }
-            event.setCancelled(true);
+        // Remove items
+        double total = EventUtils.getContainerWorth(container, true);
+
+        // Subtract use
+        if (!StickHandler.isInfinite(sellStick)) StickHandler.subtractUses(sellStick);
+
+        double multiplier = EventUtils.getPlayersMultiplier(player);
+        Economy econ = SellStick.getInstance().getEcon();
+        int uses = StickHandler.getUses(sellStick);
+
+        // Add funds to player
+        EconomyResponse response = econ.depositPlayer(player, total * multiplier);
+        if (!response.transactionSuccess()) {
+            ChatUtils.sendMsg(player, String.format("An error occurred: " + SellstickConfig.prefix, response.errorMessage), true);
             return;
         }
+
+        // Send message to player
+        String[] send = SellstickConfig.sellMessage.split("\\\\n");
+        for (String msg : send) {
+            if (sendInChat) {
+                ChatUtils.sendMsg(player, msg
+                        .replace("%uses%", String.valueOf(uses))
+                        .replace("%balance%", econ.format(response.balance))
+                        .replace("%price%", econ.format(response.amount)), true);
+            } else {
+                ChatUtils.sendActionBar(player, msg
+                        .replace("%uses%", String.valueOf(uses))
+                        .replace("%balance%", econ.format(response.balance))
+                        .replace("%price%", econ.format(response.amount)));
+            }
+        }
+
+        // Send to log file
+        String coords = Math.round(player.getLocation().x()) + " " + Math.round(player.getLocation().y()) + " " + Math.round(player.getLocation().z());
+        ChatUtils.writeLog(player.getUniqueId() + " sold $" + Math.round(response.amount) + " ($" + Math.round(response.balance) + ") at " + coords + " in " + player.getWorld().getName());
 
         // Play sound
         if (SellstickConfig.sound) {
-            assert event.getInteractionPoint() != null;
-            player.playSound(event.getInteractionPoint(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 0.5f);
+            player.playSound(Objects.requireNonNull(event.getInteractionPoint()), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 0.5f);
+        }
+        // Particles
+        if (SellstickConfig.particles) {
+            player.getWorld().spawnParticle(Particle.HAPPY_VILLAGER, Objects.requireNonNull(event.getInteractionPoint()), 5, 0.2, 0.2, 0.2, 0);
+        }
+        // Remove broken stick
+        if (uses <= 0) {
+            player.getInventory().removeItem(sellStick);
+            player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f);
+            ChatUtils.sendMsg(player, SellstickConfig.brokenStick, true);
         }
     }
 }

@@ -1,10 +1,14 @@
 package com.shmkane.sellstick;
 
+import com.earth2me.essentials.IEssentials;
+import com.shmkane.sellstick.commands.AdminCommands;
+import com.shmkane.sellstick.commands.CommandManager;
 import com.shmkane.sellstick.configs.PriceConfig;
 import com.shmkane.sellstick.configs.SellstickConfig;
 import com.shmkane.sellstick.events.PlayerListener;
 import com.shmkane.sellstick.utilities.ChatUtils;
 
+import dev.jorel.commandapi.CommandAPI;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -23,6 +27,7 @@ public class SellStick extends JavaPlugin {
 
     private static Economy econ = null;
     public boolean ShopGUIEnabled, EssentialsEnabled, CommandAPIEnabled = false;
+    private static IEssentials ess;
 
     SellstickConfig sellstickConfig;
     PriceConfig priceConfig;
@@ -53,6 +58,10 @@ public class SellStick extends JavaPlugin {
         //Load Variables, Listeners and Commands
         loadVariables();
         loadClasses();
+
+        // Instantiate commands
+        CommandAPI.onEnable();
+        new CommandManager();
     }
 
     // Reload plugin (only configurations && variables)
@@ -75,8 +84,6 @@ public class SellStick extends JavaPlugin {
     public void loadClasses() {
         // Register Listeners
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
-        // Register Commands
-        getCommand("sellstick").setExecutor(new SellStickCommand());
         // Create config classes
         sellstickConfig = new SellstickConfig("config", getDataFolder());
         priceConfig = new PriceConfig("prices", getDataFolder());
@@ -96,6 +103,7 @@ public class SellStick extends JavaPlugin {
         if (rsp == null) {
             return false;
         }
+        ess = (IEssentials) SellStick.getInstance().getServer().getPluginManager().getPlugin("Essentials");
         econ = rsp.getProvider();
         return true;
     }
@@ -104,11 +112,11 @@ public class SellStick extends JavaPlugin {
         return SellStick.econ;
     }
 
-    public static SellStick getInstance() {
-        return plugin;
+    public IEssentials getEssentials() {
+        return SellStick.ess;
     }
 
-    public int getMaxAmount() {
-        return sellstickConfig.getMaxAmount();
+    public static SellStick getInstance() {
+        return plugin;
     }
 }

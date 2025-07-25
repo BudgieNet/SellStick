@@ -22,7 +22,13 @@ public abstract class Config {
         setup(dataFolder);
     }
 
-    // Setup Main Configuration
+    /**
+     * Sets up the configuration file within the specified directory. If the directory or
+     * configuration file does not exist, it is created. Loads values from the configuration file
+     * after ensuring its existence.
+     *
+     * @param dir The directory in which the configuration file should be located or created.
+     */
     public void setup(File dir) {
         if (dir.exists() || dir.mkdirs()) {
             conf = new File(dir + File.separator + configFilename);
@@ -40,8 +46,7 @@ public abstract class Config {
     }
 
     @ForOverride
-    void loadValues(FileConfiguration config) {
-    }
+    void loadValues(FileConfiguration config) {}
 
     public static FileConfiguration getConfig() {
         return YamlConfiguration.loadConfiguration(conf);
