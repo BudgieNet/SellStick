@@ -24,7 +24,7 @@ import static com.shmkane.sellstick.utilities.ChatUtils.log;
 
 public class PlayerListener implements Listener {
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onSellstickUse(PlayerInteractEvent event) {
         // Execute quick checks
         if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK)) return;
