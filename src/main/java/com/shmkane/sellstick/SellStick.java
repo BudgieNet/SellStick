@@ -1,5 +1,6 @@
 package com.shmkane.sellstick;
 
+import com.earth2me.essentials.IEssentials;
 import com.shmkane.sellstick.commands.AdminCommands;
 import com.shmkane.sellstick.commands.CommandManager;
 import com.shmkane.sellstick.configs.PriceConfig;
@@ -26,6 +27,7 @@ public class SellStick extends JavaPlugin {
 
     private static Economy econ = null;
     public boolean ShopGUIEnabled, EssentialsEnabled, CommandAPIEnabled = false;
+    private static IEssentials ess;
 
     SellstickConfig sellstickConfig;
     PriceConfig priceConfig;
@@ -101,12 +103,17 @@ public class SellStick extends JavaPlugin {
         if (rsp == null) {
             return false;
         }
+        ess = (IEssentials) SellStick.getInstance().getServer().getPluginManager().getPlugin("Essentials");
         econ = rsp.getProvider();
         return true;
     }
 
     public Economy getEcon() {
         return SellStick.econ;
+    }
+
+    public IEssentials getEssentials() {
+        return SellStick.ess;
     }
 
     public static SellStick getInstance() {

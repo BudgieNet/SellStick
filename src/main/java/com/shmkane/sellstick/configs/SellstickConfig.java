@@ -2,23 +2,29 @@ package com.shmkane.sellstick.configs;
 
 import com.shmkane.sellstick.SellStick;
 import com.shmkane.sellstick.utilities.ChatUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
 // Handles config.YML
 public class SellstickConfig extends Config {
 
-    public static List<String> lore;
-    public static String displayName, PriceInterface, receiveMessage, giveMessage, nonSellingRelated, brokenStick,
-            nothingWorth, territoryMessage, noPerm, sellMessage, prefix, infiniteLore, finiteLore, holdOneMessage;
-    public static boolean sound, glow;
+    public static String PriceInterface, receiveMessage, giveMessage, nonSellingRelated, brokenStick,
+            nothingWorth, territoryMessage, noPerm, sellMessage, prefix, holdOneMessage;
+    public static boolean sound, glow, particles;
     public static Material material;
     public static int maxAmount;
-    static PriceSource priceSource;
+    public static PriceSource priceSource;
+    public static List<Component> loreFinite = new ArrayList<>(), loreInfinite = new ArrayList<>();
+    public static Component displayName;
+    public static int loreLine;
 
     public SellstickConfig(String configName, File dataFolder) {
         super(configName, dataFolder);
@@ -29,16 +35,27 @@ public class SellstickConfig extends Config {
     void loadValues(FileConfiguration config) {
         // Price Interface Configuration
         PriceInterface = tryGetString(conf, "PriceSource", "PricesYML");
+        priceSource = setPriceSource(PriceInterface);
 
         // Item Configuration
-        displayName = tryGetString(conf, "Item.DisplayName", "<gold>SellStick");
         material = tryGetMaterial(conf, "Item.Material", Material.STICK);
-        lore = config.getStringList("Item.StickLore");
-        finiteLore = tryGetString(conf, "Item.FiniteLore", "<dark_red>%remaining% <red>remaining uses");
-        infiniteLore = tryGetString(conf, "Item.InfiniteLore", "<dark_red>Infinite <red>uses!");
-        glow = Boolean.parseBoolean(tryGetString(conf, "Item.Glow", String.valueOf(true)));
-        maxAmount = Integer.parseInt(tryGetString(conf, "Item.MaxAmount", "2000"));
-        sound = Boolean.parseBoolean(tryGetString(conf, "Item.UseSound", String.valueOf(true)));
+        glow = config.getBoolean("Item.Glow", true);
+        maxAmount = config.getInt("Item.MaxAmount", 2000);
+        sound = config.getBoolean("Item.UseSound", true);
+        particles = config.getBoolean("Item.UseParticles", true);
+
+        // Name / Lore
+        displayName = MiniMessage.miniMessage().deserialize(tryGetString(conf, "Item.DisplayName", "<gold>SellStick"));
+        // Infinite lore
+        config.getStringList("Item.InfiniteLore").forEach(line -> loreInfinite.add(MiniMessage.miniMessage().deserialize(line)));
+        // Finite lore
+        List<String> finiteLore = config.getStringList("Item.FiniteLore");
+        for (String line : finiteLore) { loreFinite.add(MiniMessage.miniMessage().deserialize(line)); }
+        // Lore line
+        for (int i = 0; i < loreFinite.size(); i++) {
+            if (loreFinite.get(i).toString().contains("%remaining%")) loreLine = i;
+        }
+
         // Messages
         holdOneMessage = tryGetString(conf, "Messages.OnlyHoldOne", "<red>Please use 1 sell stick at a time!");
         prefix = tryGetString(conf, "Messages.PluginPrefix", "<gold>[<yellow>SellStick<gold>] ");
@@ -53,23 +70,12 @@ public class SellstickConfig extends Config {
                 "<red>Oak''s words echoed... There''s a time and place for everything but not now! (Right click a chest!)");
         receiveMessage = tryGetString(conf, "Messages.ReceiveMessage", "<green>You gave %player% %amount% SellSticks!");
         giveMessage = tryGetString(conf, "Messages.GiveMessage", "<green>You''ve received %amount% SellSticks!");
-
-        priceSource = setPriceSource(PriceInterface);
-    }
-
-    public int getMaxAmount() {
-        return maxAmount;
-    }
-
-    public static PriceSource getPriceSource() {
-        return priceSource;
     }
 
     private PriceSource setPriceSource(String priceString) {
         if (priceString != null) {
             if (priceString.equalsIgnoreCase("ShopGUI") && SellStick.getInstance().ShopGUIEnabled) {
                 return PriceSource.SHOPGUI;
-
             }
             if (priceString.equalsIgnoreCase("Essentials") && SellStick.getInstance().EssentialsEnabled) {
                 return PriceSource.ESSWORTH;

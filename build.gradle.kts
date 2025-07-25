@@ -2,6 +2,7 @@ plugins {
     java
     id("java-library")
     id("maven-publish")
+    id("idea")
 }
 
 repositories {

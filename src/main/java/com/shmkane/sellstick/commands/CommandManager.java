@@ -13,12 +13,20 @@ public class CommandManager {
         String cmd = "sellstick";
 
         AdminCommands adminCommands = new AdminCommands();
+        PlayerCommands playerCommands = new PlayerCommands();
 
         new CommandAPICommand(cmd)
                 .withPermission(cmd)
                 .withSubcommand(new CommandAPICommand("reload")
                         .withPermission(cmd + ".reload")
                         .executes(adminCommands::reload))
+
+                .withSubcommand(new CommandAPICommand("convert")
+                        .withPermission(cmd + ".convert")
+                        .withArguments(new PlayerArgument("target")
+                                .replaceSafeSuggestions(SafeSuggestions.suggest(info ->
+                                        Bukkit.getOnlinePlayers().toArray(new Player[0]))))
+                        .executes(adminCommands::convert))
 
                 .withSubcommand(new CommandAPICommand("give")
                         .withPermission(cmd + ".give")
@@ -31,14 +39,11 @@ public class CommandManager {
 
                 .withSubcommand(new CommandAPICommand("toggle")
                         .withPermission(cmd + ".toggle")
-                        .executes(adminCommands::toggle))
+                        .executes(playerCommands::toggle))
 
                 .withSubcommand(new CommandAPICommand("merge")
                         .withPermission(cmd + ".merge")
-                        .withArguments(new PlayerArgument("target")
-                                .replaceSafeSuggestions(SafeSuggestions.suggest(info ->
-                                        Bukkit.getOnlinePlayers().toArray(new Player[0]))))
-                        .executes(adminCommands::merge))
+                        .executes(playerCommands::merge))
 
                 .withSubcommand(new CommandAPICommand("give")
                         .withPermission(cmd + ".give")

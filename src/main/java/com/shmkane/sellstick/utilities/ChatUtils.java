@@ -12,6 +12,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.logging.Level;
 
 
@@ -60,5 +67,37 @@ public class ChatUtils {
             return LegacyComponentSerializer.builder().character('&').hexCharacter('#').build().deserialize(string);
         else
             return (TextComponent) MiniMessage.miniMessage().deserialize(string);
+    }
+
+    /**
+     * Writes a log entry to a daily log file in the plugin's log folder.
+     *
+     * @param message The log message to be written to the file.
+     */
+    public static void writeLog(String message) {
+        try {
+            // Get date + time
+            Date calender = Calendar.getInstance().getTime();
+            String time = new SimpleDateFormat("dd-MM-yy HH:mm:ss").format(calender);
+            String date = time.substring(0, 8);
+
+            // Get / create log folder
+            File logFolder = new File(SellStick.getInstance().getDataFolder() + File.separator + "logs");
+            if (!logFolder.exists()) logFolder.mkdir();
+
+            // Get / create log file
+            File saveTo = new File(logFolder,date + ".log");
+            if (!saveTo.exists()) saveTo.createNewFile();
+
+            // Write log to file
+            FileWriter fw = new FileWriter(saveTo, true);
+            PrintWriter pw = new PrintWriter(fw);
+            pw.println(time + " | " + message);
+            pw.close();
+
+        } catch (IOException e) {
+            ChatUtils.log(Level.SEVERE, e.toString());
+            e.printStackTrace();
+        }
     }
 }
