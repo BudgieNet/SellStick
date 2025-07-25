@@ -180,7 +180,6 @@ public class StickHandler {
         // Must have sellstick in the name
         if (!PlainTextComponentSerializer.plainText().serialize(itemStack.displayName()).toLowerCase().contains("sellstick")) return false;
         // Must not be current
-        ChatUtils.log("Checking if " + (itemStack.displayName() == SellstickConfig.displayName));
         if (itemStack.displayName() == SellstickConfig.displayName) return false;
         if (itemStack.getItemMeta().lore() == SellstickConfig.loreFinite) return false;
 
