@@ -51,7 +51,8 @@ public class CommandManager {
                                 .replaceSafeSuggestions(SafeSuggestions.suggest(info ->
                                         Bukkit.getOnlinePlayers().toArray(new Player[0]))))
                         .withArguments(new IntegerArgument("amount"))
-                        .withArguments(new IntegerArgument("uses"))
+                        .withArguments(new StringArgument("uses")
+                                .replaceSuggestions(ArgumentSuggestions.strings("1", "10", "100", "i")))
                         .executes(adminCommands::give))
 
                 .register(SellStick.getInstance());

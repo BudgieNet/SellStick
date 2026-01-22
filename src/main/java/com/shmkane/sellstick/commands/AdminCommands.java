@@ -51,22 +51,33 @@ public class AdminCommands {
      * Provides the ability to give a player a specified number of "sell sticks" with a defined number of uses.
      */
     public void give(CommandSender sender, CommandArguments args) {
+        // Get target player
         final Player target = (Player) args.get("target");
-        final Integer numSticks = (Integer) args.get("amount");
-        Integer uses = (Integer) args.get("uses");
+        if (target == null) return;
 
-        if (target == null || numSticks == null || uses == null) return;
+        // Get string amount and convert if necessary
+        String usesArg = (String) args.get("uses");
+        if (usesArg == null || usesArg.equals("i") || usesArg.equals("infinite")) usesArg = "Infinite";
 
-        // Give sell sticks
-        for (int i = 0; i < numSticks; i++) {
-            StickHandler.giveSellStickToPlayer(target, uses);
+        // Argument "Infinite" will equal max integer
+        try {
+            final int uses = usesArg.equals("Infinite") ? Integer.MAX_VALUE : Integer.parseInt(usesArg);
+            final int amount = args.get("amount") == null ? 1 : Integer.parseInt(args.get("amount").toString());
+
+            // Give sell sticks
+            for (int i = 0; i < amount; i++) {
+                StickHandler.giveSellStickToPlayer(target, uses);
+            }
+
+            ChatUtils.sendMsg(target, SellstickConfig.receiveMessage
+                    .replace("%player%", target.getName())
+                    .replace("%amount%", Integer.toString(amount)));
+            ChatUtils.sendMsg(sender, SellstickConfig.giveMessage
+                    .replace("%player%", target.getName())
+                    .replace("%amount%", Integer.toString(amount)));
+
+        } catch (NumberFormatException e) {
+            ChatUtils.sendMsg(sender, "<red>Invalid amount!");
         }
-
-        ChatUtils.sendMsg(target, SellstickConfig.receiveMessage
-                .replace("%player%", target.getName())
-                .replace("%amount%", numSticks.toString()));
-        ChatUtils.sendMsg(sender, SellstickConfig.giveMessage
-                .replace("%player%", target.getName())
-                .replace("%amount%", numSticks.toString()));
     }
 }

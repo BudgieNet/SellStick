@@ -230,10 +230,14 @@ public class StickHandler {
      * @param itemStack The itemstack to update the lore for.
      */
     public static void updateRemainingLore(ItemStack itemStack, int uses) {
+        String newStrLine = MiniMessage.miniMessage().serialize(SellstickConfig.loreFinite.get(SellstickConfig.loreLine)).replace("%remaining%", String.valueOf(uses));
 
-        String newStrLine = MiniMessage.miniMessage().serialize(SellstickConfig.loreFinite.get(SellstickConfig.loreLine))
-                .replace("%remaining%", String.valueOf(uses));
-        Component newLine = MiniMessage.miniMessage().deserialize(newStrLine);
+        Component newLine;
+        if (uses == Integer.MAX_VALUE) {
+            newLine = SellstickConfig.loreInfinite.get(SellstickConfig.loreLine);
+        } else {
+            newLine = MiniMessage.miniMessage().deserialize(newStrLine);
+        }
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         List<Component> lore = itemMeta.lore();
