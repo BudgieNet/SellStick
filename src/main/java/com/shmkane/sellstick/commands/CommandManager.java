@@ -3,8 +3,6 @@ package com.shmkane.sellstick.commands;
 import com.shmkane.sellstick.SellStick;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.*;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.*;
 
 public class CommandManager {
 
@@ -23,19 +21,8 @@ public class CommandManager {
 
                 .withSubcommand(new CommandAPICommand("convert")
                         .withPermission(cmd + ".convert")
-                        .withArguments(new PlayerArgument("target")
-                                .replaceSafeSuggestions(SafeSuggestions.suggest(info ->
-                                        Bukkit.getOnlinePlayers().toArray(new Player[0]))))
+                        .withArguments(new EntitySelectorArgument.OnePlayer("target"))
                         .executes(adminCommands::convert))
-
-                .withSubcommand(new CommandAPICommand("give")
-                        .withPermission(cmd + ".give")
-                        .withArguments(new PlayerArgument("target")
-                                .replaceSafeSuggestions(SafeSuggestions.suggest(info ->
-                                        Bukkit.getOnlinePlayers().toArray(new Player[0]))))
-                        .withArguments(new IntegerArgument("amount"))
-                        .withArguments(new IntegerArgument("uses"))
-                        .executes(adminCommands::give))
 
                 .withSubcommand(new CommandAPICommand("toggle")
                         .withPermission(cmd + ".toggle")
@@ -47,9 +34,7 @@ public class CommandManager {
 
                 .withSubcommand(new CommandAPICommand("give")
                         .withPermission(cmd + ".give")
-                        .withArguments(new PlayerArgument("target")
-                                .replaceSafeSuggestions(SafeSuggestions.suggest(info ->
-                                        Bukkit.getOnlinePlayers().toArray(new Player[0]))))
+                        .withArguments(new EntitySelectorArgument.OnePlayer("target"))
                         .withArguments(new IntegerArgument("amount"))
                         .withArguments(new StringArgument("uses")
                                 .replaceSuggestions(ArgumentSuggestions.strings("1", "10", "100", "i")))

@@ -1,58 +1,50 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     java
     id("java-library")
     id("maven-publish")
-    id("idea")
-}
-
-repositories {
-    mavenLocal()
-    maven {
-        url = uri("https://repo.papermc.io/repository/maven-public/")
-    }
-
-    maven {
-        url = uri("https://jitpack.io")
-    }
-
-    maven {
-        url = uri("https://ci.ender.zone/plugin/repository/everything/")
-    }
-
-    maven {
-        url = uri("https://repo.codemc.io/repository/maven-public/")
-    }
-
-    maven {
-        url = uri("https://repo.maven.apache.org/maven2/")
-    }
-}
-
-dependencies {
-    compileOnly("de.tr7zw:item-nbt-api-plugin:2.15.1")
-    compileOnly("dev.jorel:commandapi-bukkit-core:10.0.1")
-    compileOnly(libs.io.papermc.paper.paper.api)
-    compileOnly(libs.com.github.milkbowl.vaultapi)
-    compileOnly(libs.net.ess3.essentialsx)
-    compileOnly(libs.com.github.brcdev.minecraft.shopgui.api)
+    id("com.gradleup.shadow") version "8.3.3"
 }
 
 group = "com.shmkane"
-version = "2.0.0"
-description = "sellstick"
+version = "2.1.0"
+description = "SellStick"
 
 java.sourceCompatibility = JavaVersion.VERSION_21
 java.targetCompatibility = JavaVersion.VERSION_21
 
-tasks.withType<JavaCompile>() {
+repositories {
+    mavenLocal()
+    maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
+    maven { url = uri("https://ci.ender.zone/plugin/repository/everything/") }
+    maven { url = uri("https://repo.codemc.io/repository/maven-public/") }
+    maven { url = uri("https://repo.maven.apache.org/maven2/") }
+    maven { url = uri("https://repo.essentialsx.net/releases/") }
+    maven { url = uri("https://repo.codemc.io/repository/creatorfromhell/") }
+    maven { url = uri("https://jitpack.io") }
+}
+
+dependencies {
+    compileOnly("de.tr7zw:item-nbt-api-plugin:2.15.5")
+    implementation("dev.jorel:commandapi-paper-shade:11.1.0")
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    compileOnly("net.milkbowl.vault:VaultUnlockedAPI:2.18")
+    compileOnly("net.essentialsx:EssentialsX:2.21.2") {
+        exclude(group = "org.spigotmc", module = "spigot-api")
+    }
+    compileOnly("com.github.brcdev-minecraft:shopgui-api:3.2.0")
+}
+
+tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
-tasks.withType<Javadoc>() {
+tasks.withType<Javadoc> {
     options.encoding = "UTF-8"
 }
 
 tasks.processResources {
-    val props = mapOf("version" to project.version)
+    val props = mapOf("version" to version)
     inputs.properties(props)
     filteringCharset = "UTF-8"
     filesMatching("plugin.yml") {
@@ -60,21 +52,28 @@ tasks.processResources {
     }
 }
 
-tasks.register<Copy>("copyJarToServer") {
-    dependsOn(tasks.build)
-    from(layout.buildDirectory.file("libs/${rootProject.name}-${version}.jar"))
-    into("/data/BudgieNet/PAPER_1_21_4/plugins/")
+tasks.withType<ShadowJar> {
+    relocate("dev.jorel.commandapi", "com.shmkane.sellstick.commandapi")
+    archiveFileName.set("${project.name}-${rootProject.version}.jar")
 }
 
-tasks.register<Exec>("restartPaper") {
+tasks.register<Copy> ("copyJarToServer") {
+    dependsOn(":jar")
+    dependsOn(tasks.shadowJar)
+    from(layout.buildDirectory.file("libs/${rootProject.name}-${rootProject.version}.jar"))
+    into("/data/BudgieNet/PAPER_1_21_11/plugins/")
+}
+
+tasks.register<Exec> ("restartPaper") {
     dependsOn(tasks.named("copyJarToServer"))
-    commandLine("bash", "-c", "/data/BudgieNet/PAPER_1_21_4/reload_sellstick.sh")
+    commandLine("bash", "-c", "pgrep -f 'paper.jar' | xargs kill")
     isIgnoreExitValue = true
 }
 
-tasks.named("build") {
-    finalizedBy("copyJarToServer")
-    finalizedBy("restartPaper")
+tasks.shadowJar {
+    manifest {
+        attributes["paperweight-mappings-namespace"] = "mojang"
+    }
 }
 
 java {
@@ -84,11 +83,5 @@ java {
 publishing {
     publications.create<MavenPublication>("maven") {
         from(components["java"])
-    }
-}
-
-configurations.configureEach {
-    resolutionStrategy.capabilitiesResolution.withCapability("com.destroystokyo.paper:paper-mojangapi") {
-        select("net.budgie.papercrane:papercrane-api:1.21.4-R0.1-SNAPSHOT")
     }
 }

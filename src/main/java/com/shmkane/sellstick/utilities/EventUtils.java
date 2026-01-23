@@ -72,6 +72,7 @@ public class EventUtils {
                 case ESSWORTH:
 
                     IEssentials ess = SellStick.getInstance().getEssentials();
+                    if (ess == null) continue;
                     BigDecimal essPrice = ess.getWorth().getPrice(ess, itemstack);
 
                     if (essPrice == null || essPrice.doubleValue() <= 0d) continue;

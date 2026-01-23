@@ -4,8 +4,8 @@ version: ${version}
 api-version: 1.21
 author: shmkane, TreemanKing, 1UnderTheSun, CodfishBender
 website: https://github.com/shmkane/SellStick
-depend: [Essentials, Vault, CommandAPI]
-softdepend: [ShopGuiPlus]
+depend: [Vault]
+softdepend: [ShopGuiPlus, Essentials]
 
 permissions:
   sellstick.reload:

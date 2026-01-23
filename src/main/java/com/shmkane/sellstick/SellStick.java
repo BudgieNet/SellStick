@@ -1,7 +1,6 @@
 package com.shmkane.sellstick;
 
 import com.earth2me.essentials.IEssentials;
-import com.shmkane.sellstick.commands.AdminCommands;
 import com.shmkane.sellstick.commands.CommandManager;
 import com.shmkane.sellstick.configs.PriceConfig;
 import com.shmkane.sellstick.configs.SellstickConfig;
@@ -9,6 +8,7 @@ import com.shmkane.sellstick.events.PlayerListener;
 import com.shmkane.sellstick.utilities.ChatUtils;
 
 import dev.jorel.commandapi.CommandAPI;
+import dev.jorel.commandapi.CommandAPIPaperConfig;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -46,9 +46,12 @@ public class SellStick extends JavaPlugin {
     @Override
     public void onEnable() {
         plugin = this;
+        CommandAPI.onLoad(new CommandAPIPaperConfig(this).silentLogs(true));
+        CommandAPI.onEnable();
+
         // Don't load plugin if Vault is not present
-        if (!setupEconomy()) {
-            ChatUtils.log(Level.SEVERE, SellstickConfig.prefix + " - Disabled due to no Vault dependency found!");
+        if (!setupEconomy() ) {
+            ChatUtils.log(Level.SEVERE, "Disabled due to no Vault dependency found!");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -60,7 +63,6 @@ public class SellStick extends JavaPlugin {
         loadClasses();
 
         // Instantiate commands
-        CommandAPI.onEnable();
         new CommandManager();
     }
 
@@ -91,20 +93,18 @@ public class SellStick extends JavaPlugin {
 
     @Override
     public void onDisable() {
-
+        CommandAPI.onDisable();
     }
 
     // Vault Economy Provider
     private boolean setupEconomy() {
-        if (getServer().getPluginManager().getPlugin("Vault") == null) {
-            return false;
-        }
+        if (getServer().getPluginManager().getPlugin("Vault") == null) return false;
         RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-        if (rsp == null) {
-            return false;
-        }
-        ess = (IEssentials) SellStick.getInstance().getServer().getPluginManager().getPlugin("Essentials");
+        if (rsp == null) return false;
         econ = rsp.getProvider();
+        if (getServer().getPluginManager().getPlugin("Essentials") != null) {
+            ess = (IEssentials) SellStick.getInstance().getServer().getPluginManager().getPlugin("Essentials");
+        }
         return true;
     }
 
