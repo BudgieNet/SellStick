@@ -15,7 +15,7 @@ java.sourceCompatibility = JavaVersion.VERSION_21
 java.targetCompatibility = JavaVersion.VERSION_21
 
 repositories {
-    mavenLocal()
+    mavenCentral()
     maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
     maven { url = uri("https://ci.ender.zone/plugin/repository/everything/") }
     maven { url = uri("https://repo.codemc.io/repository/maven-public/") }
@@ -26,13 +26,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly("de.tr7zw:item-nbt-api-plugin:2.15.5")
+    implementation("de.tr7zw:item-nbt-api:2.15.5")
     implementation("dev.jorel:commandapi-paper-shade:11.1.0")
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     compileOnly("net.milkbowl.vault:VaultUnlockedAPI:2.18")
-    compileOnly("net.essentialsx:EssentialsX:2.21.2") {
-        exclude(group = "org.spigotmc", module = "spigot-api")
-    }
+    compileOnly("net.essentialsx:EssentialsX:2.21.2")
     compileOnly("com.github.brcdev-minecraft:shopgui-api:3.2.0")
 }
 
@@ -53,6 +51,7 @@ tasks.processResources {
 }
 
 tasks.withType<ShadowJar> {
+    relocate("de.tr7zw.changeme.nbtapi", "com.shmkane.sellstick.nbtapi")
     relocate("dev.jorel.commandapi", "com.shmkane.sellstick.commandapi")
     archiveFileName.set("${project.name}-${rootProject.version}.jar")
 }
@@ -68,6 +67,10 @@ tasks.register<Exec> ("restartPaper") {
     dependsOn(tasks.named("copyJarToServer"))
     commandLine("bash", "-c", "pgrep -f 'paper.jar' | xargs kill")
     isIgnoreExitValue = true
+}
+
+tasks.named("build") {
+    finalizedBy("shadowJar")
 }
 
 tasks.shadowJar {

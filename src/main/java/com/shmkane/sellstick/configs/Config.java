@@ -36,12 +36,13 @@ public abstract class Config {
                 FileConfiguration config = YamlConfiguration.loadConfiguration(conf);
                 try {
                     config.save(conf);
-                    ChatUtils.log(Level.INFO, "Finished loading " + configFilename);
+                    ChatUtils.log(Level.INFO, "Created " + configFilename);
                 } catch (Exception e) {
                     ChatUtils.log(Level.SEVERE, e.getMessage());
                 }
             }
             loadValues(getConfig());
+            ChatUtils.log("Finished loading " + configFilename);
         }
     }
 

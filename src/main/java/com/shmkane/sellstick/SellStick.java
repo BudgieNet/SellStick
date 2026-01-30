@@ -7,14 +7,13 @@ import com.shmkane.sellstick.configs.SellstickConfig;
 import com.shmkane.sellstick.events.PlayerListener;
 import com.shmkane.sellstick.utilities.ChatUtils;
 
+import de.tr7zw.changeme.nbtapi.NBT;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIPaperConfig;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.logging.Level;
 
 /*
  * SellStick is a Minecraft plugin that allows customizable
@@ -31,6 +30,7 @@ public class SellStick extends JavaPlugin {
 
     SellstickConfig sellstickConfig;
     PriceConfig priceConfig;
+    CommandManager commandManager;
     static SellStick plugin;
 
     /**
@@ -49,46 +49,44 @@ public class SellStick extends JavaPlugin {
         CommandAPI.onLoad(new CommandAPIPaperConfig(this).silentLogs(true));
         CommandAPI.onEnable();
 
-        // Don't load plugin if Vault is not present
-        if (!setupEconomy() ) {
-            ChatUtils.log(Level.SEVERE, "Disabled due to no Vault dependency found!");
+        // Don
+        if (!NBT.preloadApi()) {
+            ChatUtils.error("NBT-API wasn't initialized properly, disabling the plugin");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
+        // Don't load plugin if Vault is not present
+        if (!setupEconomy() ) {
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        loadSellStick();
+    }
+
+    // Reload plugin
+    public void loadSellStick() {
+
+        // Create the default config if it doesn't exist
         saveDefaultConfig();
 
-        //Load Variables, Listeners and Commands
-        loadVariables();
-        loadClasses();
-
-        // Instantiate commands
-        new CommandManager();
-    }
-
-    // Reload plugin (only configurations && variables)
-    public void reload() {
-        // Update config file
-        reloadConfig();
-        // Check soft dependencies and update interface
-        loadVariables();
-        // Update config vars
-        sellstickConfig.setup(getDataFolder());
-        priceConfig.setup(getDataFolder());
-    }
-
-    public void loadVariables() {
         // Check Soft Dependencies
         ShopGUIEnabled = Bukkit.getPluginManager().isPluginEnabled("ShopGuiPlus");
         EssentialsEnabled = Bukkit.getPluginManager().isPluginEnabled("Essentials");
-    }
+        if (EssentialsEnabled) {
+            ess = (IEssentials) SellStick.getInstance().getServer().getPluginManager().getPlugin("Essentials");
+        }
 
-    public void loadClasses() {
-        // Register Listeners
-        Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
         // Create config classes
         sellstickConfig = new SellstickConfig("config", getDataFolder());
         priceConfig = new PriceConfig("prices", getDataFolder());
+
+        // Register Listeners
+        Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
+
+        // Instantiate commands
+        commandManager = new CommandManager();
     }
 
     @Override
@@ -98,13 +96,16 @@ public class SellStick extends JavaPlugin {
 
     // Vault Economy Provider
     private boolean setupEconomy() {
-        if (getServer().getPluginManager().getPlugin("Vault") == null) return false;
-        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-        if (rsp == null) return false;
-        econ = rsp.getProvider();
-        if (getServer().getPluginManager().getPlugin("Essentials") != null) {
-            ess = (IEssentials) SellStick.getInstance().getServer().getPluginManager().getPlugin("Essentials");
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            ChatUtils.error("No Vault dependency found! Disabling plugin.");
+            return false;
         }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            ChatUtils.error("No Economy service found! Disabling plugin.");
+            return false;
+        }
+        econ = rsp.getProvider();
         return true;
     }
 

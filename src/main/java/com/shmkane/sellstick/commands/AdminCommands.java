@@ -9,8 +9,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.logging.Level;
-
 public class AdminCommands {
 
     /**
@@ -37,13 +35,14 @@ public class AdminCommands {
     /**
      * Reloads the SellStick plugin, reloading its configurations and variables.
      */
-    public void reload(CommandSender sender, CommandArguments arguments) {
+    public void reloadSellStick(CommandSender sender, CommandArguments arguments) {
         try {
-            SellStick.getInstance().reload();
-            ChatUtils.sendMsg(sender, "<green>SellStick plugin reloaded successfully!");
+            ChatUtils.sendMsg(sender, "<green>Plugin reloading...");
+            SellStick.getInstance().loadSellStick();
+            ChatUtils.sendMsg(sender, "<green>Plugin reloaded!");
         } catch (Exception ex) {
             ChatUtils.sendMsg(sender, "<red>Something went wrong! Check console for errors!");
-            ChatUtils.log(Level.SEVERE, ex.getMessage());
+            ChatUtils.error(ex.getMessage());
         }
     }
 

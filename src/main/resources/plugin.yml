@@ -3,26 +3,8 @@ main: com.shmkane.sellstick.SellStick
 version: ${version}
 api-version: 1.21
 author: shmkane, TreemanKing, 1UnderTheSun, CodfishBender
-website: https://github.com/shmkane/SellStick
-depend: [Vault]
-softdepend: [ShopGuiPlus, Essentials]
-
-permissions:
-  sellstick.reload:
-    default: op
-    description: To reload the plugin
-  sellstick.use:
-    default: true
-    description: To use a sellstick
-  sellstick.give:
-    default: op
-    description: Give sellstick to players
-  sellstick.convert:
-    default: op
-    description: Allows players to convert their old sellsticks into new ones
-  sellstick.merge:
-    default: true
-    description: Allows players to merge all sellsticks in their inventory into one
-  sellstick.toggle:
-    default: true
-    description: Allows players to toggle sell messages from chat to action bar
+depend:
+  - Vault
+softdepend:
+  - ShopGuiPlus
+  - Essentials

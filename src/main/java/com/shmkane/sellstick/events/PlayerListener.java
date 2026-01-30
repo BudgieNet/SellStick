@@ -20,8 +20,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Objects;
 
-import static com.shmkane.sellstick.utilities.ChatUtils.log;
-
 public class PlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)

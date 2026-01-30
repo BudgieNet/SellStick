@@ -3,7 +3,6 @@ package com.shmkane.sellstick.configs;
 import com.shmkane.sellstick.SellStick;
 import com.shmkane.sellstick.utilities.ChatUtils;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;

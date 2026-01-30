@@ -17,7 +17,7 @@ public class CommandManager {
                 .withPermission(cmd)
                 .withSubcommand(new CommandAPICommand("reload")
                         .withPermission(cmd + ".reload")
-                        .executes(adminCommands::reload))
+                        .executes(adminCommands::reloadSellStick))
 
                 .withSubcommand(new CommandAPICommand("convert")
                         .withPermission(cmd + ".convert")

@@ -4,12 +4,10 @@ import com.shmkane.sellstick.configs.SellstickConfig;
 import com.shmkane.sellstick.SellStick;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.io.File;
@@ -96,7 +94,7 @@ public class ChatUtils {
             pw.close();
 
         } catch (IOException e) {
-            ChatUtils.log(Level.SEVERE, e.toString());
+            error(e.toString());
             e.printStackTrace();
         }
     }

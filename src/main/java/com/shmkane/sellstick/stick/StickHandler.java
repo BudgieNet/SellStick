@@ -2,8 +2,8 @@ package com.shmkane.sellstick.stick;
 
 import com.shmkane.sellstick.configs.SellstickConfig;
 import com.shmkane.sellstick.utilities.ChatUtils;
-import de.tr7zw.nbtapi.NBT;
-import de.tr7zw.nbtapi.iface.ReadableNBT;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadableNBT;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -229,7 +229,9 @@ public class StickHandler {
      * @param itemStack The itemstack to update the lore for.
      */
     public static void updateRemainingLore(ItemStack itemStack, int uses) {
-        String newStrLine = MiniMessage.miniMessage().serialize(SellstickConfig.loreFinite.get(SellstickConfig.loreLine)).replace("%remaining%", String.valueOf(uses));
+        String newStrLine = MiniMessage.miniMessage().serialize(
+                SellstickConfig.loreFinite.get(SellstickConfig.loreLine)).replace("%remaining%", String.valueOf(uses)
+        );
 
         Component newLine;
         if (uses == Integer.MAX_VALUE) {

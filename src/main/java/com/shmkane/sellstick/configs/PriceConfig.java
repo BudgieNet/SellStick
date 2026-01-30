@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import com.shmkane.sellstick.utilities.ChatUtils;
-import jdk.jfr.Configuration;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
