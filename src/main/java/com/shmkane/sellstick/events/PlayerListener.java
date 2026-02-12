@@ -46,13 +46,15 @@ public class PlayerListener implements Listener {
             return;
         }
 
+        if (StickHandler.getUses(sellStick) <= 0) return; // Not a sellstick - ignore
+
+        event.setCancelled(true); // Cancel opening the chest - confirmed player is using a sellstick
+
         // Check if another plugin is cancelling the event
         if (event.useInteractedBlock() == Event.Result.DENY) {
             ChatUtils.sendMsg(player, SellstickConfig.territoryMessage, true);
             return;
         }
-
-        event.setCancelled(true); // Cancel opening the chest - confirmed player is using a sellstick
 
         // Check permission
         if (!player.hasPermission("sellstick.use")) {
