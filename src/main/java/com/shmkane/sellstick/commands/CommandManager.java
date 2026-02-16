@@ -15,6 +15,7 @@ public class CommandManager {
 
         new CommandAPICommand(cmd)
                 .withPermission(cmd)
+                .withAliases("ss")
                 .withSubcommand(new CommandAPICommand("reload")
                         .withPermission(cmd + ".reload")
                         .executes(adminCommands::reloadSellStick))
