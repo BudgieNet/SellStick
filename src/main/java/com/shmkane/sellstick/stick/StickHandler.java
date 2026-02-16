@@ -209,12 +209,17 @@ public class StickHandler {
                 break;
             }
             ChatUtils.log("Checking for uses: " + text);
-            Pattern pattern = Pattern.compile("\\d+");
+            Pattern pattern = Pattern.compile("(\\s|^|:)(\\d+)(\\s|$)");
             Matcher matcher = pattern.matcher(text);
             if (matcher.find()) {
-                ChatUtils.log("Found uses: " + matcher.group());
-                uses = Integer.parseInt(matcher.group());
-                break;
+                try {
+                    ChatUtils.log("Found uses: " + matcher.group(2));
+                    uses = Integer.parseInt(matcher.group(2));
+                    break;
+                } catch (NumberFormatException e) {
+                    ChatUtils.error("Error parsing uses from old sellstick: " + e.getMessage());
+                    return null;
+                }
             }
         }
 
