@@ -6,3 +6,4 @@
 /target/*
 /sellstick.iml
 /patch.diff
+.gradle
