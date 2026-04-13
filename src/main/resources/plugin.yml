@@ -1,8 +1,9 @@
-name: SellStick
-main: com.shmkane.sellstick.SellStick
+name: ${name}
 version: ${version}
-api-version: 1.21
-author: shmkane, TreemanKing, 1UnderTheSun, CodfishBender
+description: ${description}
+main: ${main}
+api-version: ${apiVersion}
+author: ${author}
 depend:
   - Vault
 softdepend:

@@ -7,10 +7,6 @@ plugins {
     id("com.gradleup.shadow") version "8.3.3"
 }
 
-group = "com.shmkane"
-version = "2.1.0"
-description = "SellStick"
-
 java.sourceCompatibility = JavaVersion.VERSION_21
 java.targetCompatibility = JavaVersion.VERSION_21
 
@@ -34,15 +30,17 @@ dependencies {
     compileOnly("com.github.brcdev-minecraft:shopgui-api:3.2.0")
 }
 
-tasks.withType<JavaCompile> {
-    options.encoding = "UTF-8"
-}
-tasks.withType<Javadoc> {
-    options.encoding = "UTF-8"
-}
+tasks.withType<JavaCompile> { options.encoding = "UTF-8" }
+tasks.withType<Javadoc> { options.encoding = "UTF-8" }
 
 tasks.processResources {
-    val props = mapOf("version" to version)
+    val props = mapOf(
+        "name" to project.name,
+        "version" to project.version,
+        "description" to project.description,
+        "author" to project.properties["author"],
+        "main" to project.properties["mainClass"],
+        "apiVersion" to project.properties["apiVersion"])
     inputs.properties(props)
     filteringCharset = "UTF-8"
     filesMatching("plugin.yml") {
@@ -51,40 +49,37 @@ tasks.processResources {
 }
 
 tasks.withType<ShadowJar> {
-    relocate("de.tr7zw.changeme.nbtapi", "com.shmkane.sellstick.nbtapi")
-    relocate("dev.jorel.commandapi", "com.shmkane.sellstick.commandapi")
-    archiveFileName.set("${project.name}-${rootProject.version}.jar")
-}
-
-tasks.register<Copy> ("copyJarToServer") {
-    dependsOn(":jar")
-    dependsOn(tasks.shadowJar)
-    from(layout.buildDirectory.file("libs/${rootProject.name}-${rootProject.version}.jar"))
-    into("/data/BudgieNet/PAPER_1_21_11/plugins/")
-}
-
-tasks.register<Exec> ("restartPaper") {
-    dependsOn(tasks.named("copyJarToServer"))
-    commandLine("bash", "-c", "pgrep -f 'paper.jar' | xargs kill")
-    isIgnoreExitValue = true
-}
-
-tasks.named("build") {
-    finalizedBy("shadowJar")
-}
-
-tasks.shadowJar {
+    relocate("de.tr7zw.changeme.nbtapi", project.properties["mainClass"] as String + ".nbtapi")
+    relocate("dev.jorel.commandapi", project.properties["mainClass"] as String + ".commandapi")
     manifest {
         attributes["paperweight-mappings-namespace"] = "mojang"
     }
+    archiveFileName.set("${project.name}-${rootProject.version}.jar")
 }
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
+tasks.build {
+    dependsOn(tasks.clean)
+    dependsOn(tasks.shadowJar)
+}
+
+tasks.compileJava {
+    mustRunAfter(tasks.clean)
+}
+
+tasks.shadowJar {
+    mustRunAfter(tasks.jar)
+}
+
 publishing {
     publications.create<MavenPublication>("maven") {
         from(components["java"])
     }
+}
+
+if (file("local.gradle.kts").exists()) {
+    apply(from = "local.gradle.kts")
 }
