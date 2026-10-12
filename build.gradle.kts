@@ -4,11 +4,11 @@ plugins {
     java
     id("java-library")
     id("maven-publish")
-    id("com.gradleup.shadow") version "8.3.3"
+    id("com.gradleup.shadow") version "9.6.1"
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_21
-java.targetCompatibility = JavaVersion.VERSION_21
+java.sourceCompatibility = JavaVersion.VERSION_25
+java.targetCompatibility = JavaVersion.VERSION_25
 
 repositories {
     mavenCentral()
@@ -23,8 +23,9 @@ repositories {
 
 dependencies {
     implementation("de.tr7zw:item-nbt-api:2.15.5")
-    implementation("dev.jorel:commandapi-paper-shade:11.1.0")
-    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    // 12.1.0 shade jar is self-contained; its shadowed-variant metadata lists unpublished modules
+    implementation("dev.jorel:commandapi-paper-shade:12.1.0") { isTransitive = false }
+    compileOnly("io.papermc.paper:paper-api:26.3.build.175-stable")
     compileOnly("net.milkbowl.vault:VaultUnlockedAPI:2.18")
     compileOnly("net.essentialsx:EssentialsX:2.21.2")
     compileOnly("com.github.brcdev-minecraft:shopgui-api:3.2.0")
@@ -58,7 +59,7 @@ tasks.withType<ShadowJar> {
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(25))
 }
 
 tasks.build {
