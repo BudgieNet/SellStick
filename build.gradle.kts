@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-    implementation("de.tr7zw:item-nbt-api:2.15.5")
+    implementation("de.tr7zw:item-nbt-api:2.16.1")
     // 12.1.0 shade jar is self-contained; its shadowed-variant metadata lists unpublished modules
     implementation("dev.jorel:commandapi-paper-shade:12.1.0") { isTransitive = false }
     compileOnly("io.papermc.paper:paper-api:26.3.build.175-stable")
