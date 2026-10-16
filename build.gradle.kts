@@ -25,8 +25,8 @@ dependencies {
     implementation("de.tr7zw:item-nbt-api:2.16.1")
     // 12.1.0 shade jar is self-contained; its shadowed-variant metadata lists unpublished modules
     implementation("dev.jorel:commandapi-paper-shade:12.1.0") { isTransitive = false }
-    compileOnly("io.papermc.paper:paper-api:26.3.build.175-stable")
-    compileOnly("net.milkbowl.vault:VaultUnlockedAPI:2.18")
+    compileOnly("io.papermc.paper:paper-api:26.3.build.200-stable")
+    compileOnly("net.milkbowl.vault:VaultUnlockedAPI:2.20")
     compileOnly("net.essentialsx:EssentialsX:2.21.2")
     compileOnly("com.github.brcdev-minecraft:shopgui-api:3.2.0")
 }
