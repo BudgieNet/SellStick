@@ -2,7 +2,7 @@ package com.shmkane.sellstick.commands;
 
 import com.shmkane.sellstick.SellStick;
 import com.shmkane.sellstick.configs.SellstickConfig;
-import com.shmkane.sellstick.utilities.ChatUtils;
+import com.budgienet.chatutil.ChatUtil;
 import com.shmkane.sellstick.stick.StickHandler;
 import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.command.CommandSender;
@@ -37,12 +37,12 @@ public class AdminCommands {
      */
     public void reloadSellStick(CommandSender sender, CommandArguments arguments) {
         try {
-            ChatUtils.sendMsg(sender, "<green>Plugin reloading...");
+            ChatUtil.sendMsg(sender, "<green>Plugin reloading...");
             SellStick.getInstance().loadSellStick();
-            ChatUtils.sendMsg(sender, "<green>Plugin reloaded!");
+            ChatUtil.sendMsg(sender, "<green>Plugin reloaded!");
         } catch (Exception ex) {
-            ChatUtils.sendMsg(sender, "<red>Something went wrong! Check console for errors!");
-            ChatUtils.error(ex.getMessage());
+            ChatUtil.sendMsg(sender, "<red>Something went wrong! Check console for errors!");
+            ChatUtil.error(ex.getMessage());
         }
     }
 
@@ -68,15 +68,15 @@ public class AdminCommands {
                 StickHandler.giveSellStickToPlayer(target, uses);
             }
 
-            ChatUtils.sendMsg(target, SellstickConfig.receiveMessage
+            ChatUtil.sendMsg(target, SellstickConfig.receiveMessage
                     .replace("%player%", target.getName())
                     .replace("%amount%", Integer.toString(amount)));
-            ChatUtils.sendMsg(sender, SellstickConfig.giveMessage
+            ChatUtil.sendMsg(sender, SellstickConfig.giveMessage
                     .replace("%player%", target.getName())
                     .replace("%amount%", Integer.toString(amount)));
 
         } catch (NumberFormatException e) {
-            ChatUtils.sendMsg(sender, "<red>Invalid amount!");
+            ChatUtil.sendMsg(sender, "<red>Invalid amount!");
         }
     }
 }

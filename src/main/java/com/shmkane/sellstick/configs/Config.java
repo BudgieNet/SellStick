@@ -1,7 +1,7 @@
 package com.shmkane.sellstick.configs;
 
 import com.google.errorprone.annotations.ForOverride;
-import com.shmkane.sellstick.utilities.ChatUtils;
+import com.budgienet.chatutil.ChatUtil;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -36,13 +36,13 @@ public abstract class Config {
                 FileConfiguration config = YamlConfiguration.loadConfiguration(conf);
                 try {
                     config.save(conf);
-                    ChatUtils.log(Level.INFO, "Created " + configFilename);
+                    ChatUtil.log(Level.INFO, "Created " + configFilename);
                 } catch (Exception e) {
-                    ChatUtils.log(Level.SEVERE, e.getMessage());
+                    ChatUtil.log(Level.SEVERE, e.getMessage());
                 }
             }
             loadValues(getConfig());
-            ChatUtils.log("Finished loading " + configFilename);
+            ChatUtil.log("Finished loading " + configFilename);
         }
     }
 
@@ -56,12 +56,12 @@ public abstract class Config {
     void addMissingField(File yamlConfiguration, String sField, String sDefault) {
         FileConfiguration config = YamlConfiguration.loadConfiguration(yamlConfiguration);
         if (!config.contains(sField)) {
-            ChatUtils.log(Level.WARNING, "Adding missing " + sField + " to " + yamlConfiguration.getName());
+            ChatUtil.log(Level.WARNING, "Adding missing " + sField + " to " + yamlConfiguration.getName());
             config.set(sField, sDefault);
             try {
                 config.save(yamlConfiguration);
             } catch (Exception e) {
-                ChatUtils.log(Level.SEVERE, e.getMessage());
+                ChatUtil.log(Level.SEVERE, e.getMessage());
             }
         }
     }
@@ -76,10 +76,10 @@ public abstract class Config {
                 Material m = Material.getMaterial(field);
                 if (m != null) return m;
             }
-            ChatUtils.log(Level.SEVERE, "Could not find material: " + sField + ". Using default: " + mDefault.name());
+            ChatUtil.log(Level.SEVERE, "Could not find material: " + sField + ". Using default: " + mDefault.name());
             return mDefault;
         } catch(Exception e) {
-            ChatUtils.log(Level.SEVERE, "Error loading value from" + sField + " in " + yamlConfiguration.getName());
+            ChatUtil.log(Level.SEVERE, "Error loading value from" + sField + " in " + yamlConfiguration.getName());
             return mDefault;
         }
     }
@@ -91,7 +91,7 @@ public abstract class Config {
         try {
             return YamlConfiguration.loadConfiguration(yamlConfiguration).getString(sField);
         } catch(NullPointerException e) {
-            ChatUtils.log(Level.SEVERE, "Error loading value from" + sField + " in " + yamlConfiguration.getName());
+            ChatUtil.log(Level.SEVERE, "Error loading value from" + sField + " in " + yamlConfiguration.getName());
             return sDefault;
         }
     }

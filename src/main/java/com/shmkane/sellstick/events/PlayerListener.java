@@ -1,5 +1,6 @@
 package com.shmkane.sellstick.events;
 
+import com.budgienet.chatutil.ChatUtil;
 import com.shmkane.sellstick.SellStick;
 import com.shmkane.sellstick.configs.SellstickConfig;
 import com.shmkane.sellstick.stick.StickHandler;
@@ -41,7 +42,7 @@ public class PlayerListener implements Listener {
         ItemStack newStick = StickHandler.convertOldSellStick(sellStick);
         if (newStick != null) {
             player.getInventory().setItemInMainHand(newStick);
-            ChatUtils.sendMsg(player, "<green>Your old sell stick has been updated.", true);
+            ChatUtil.sendMsg(player, "<green>Your old sell stick has been updated.", true);
             event.setCancelled(true);
             return;
         }
@@ -50,7 +51,7 @@ public class PlayerListener implements Listener {
 
         // Check if another plugin is cancelling the event
         if (event.useInteractedBlock() == Event.Result.DENY) {
-            ChatUtils.sendMsg(player, SellstickConfig.territoryMessage, true);
+            ChatUtil.sendMsg(player, SellstickConfig.territoryMessage, true);
             return;
         }
 
@@ -58,13 +59,13 @@ public class PlayerListener implements Listener {
 
         // Check permission
         if (!player.hasPermission("sellstick.use")) {
-            ChatUtils.sendMsg(player, SellstickConfig.noPerm, true);
+            ChatUtil.sendMsg(player, SellstickConfig.noPerm, true);
             return;
         }
 
         // Check if player is only holding 1 stick
         if (sellStick.getAmount() != 1) {
-            ChatUtils.sendMsg(player, SellstickConfig.holdOneMessage, true);
+            ChatUtil.sendMsg(player, SellstickConfig.holdOneMessage, true);
             return;
         }
 
@@ -74,9 +75,9 @@ public class PlayerListener implements Listener {
         // Nothing worth selling
         if (EventUtils.getContainerWorth(container, false) <= 0d) {
             if (sendInChat) {
-                ChatUtils.sendMsg(player, SellstickConfig.nothingWorth);
+                ChatUtil.sendMsg(player, SellstickConfig.nothingWorth);
             } else {
-                ChatUtils.sendActionBar(player, SellstickConfig.nothingWorth);
+                ChatUtil.sendActionBar(player, SellstickConfig.nothingWorth);
             }
             return;
         }
@@ -94,7 +95,7 @@ public class PlayerListener implements Listener {
         // Add funds to player
         EconomyResponse response = econ.depositPlayer(player, total * multiplier);
         if (!response.transactionSuccess()) {
-            ChatUtils.sendMsg(player, String.format("An error occurred: " + SellstickConfig.prefix, response.errorMessage), true);
+            ChatUtil.sendMsg(player, String.format("An error occurred: " + SellstickConfig.prefix, response.errorMessage), true);
             return;
         }
 
@@ -102,12 +103,12 @@ public class PlayerListener implements Listener {
         String[] send = SellstickConfig.sellMessage.split("\\\\n");
         for (String msg : send) {
             if (sendInChat) {
-                ChatUtils.sendMsg(player, msg
+                ChatUtil.sendMsg(player, msg
                         .replace("%uses%", String.valueOf(uses))
                         .replace("%balance%", econ.format(response.balance))
                         .replace("%price%", econ.format(response.amount)), true);
             } else {
-                ChatUtils.sendActionBar(player, msg
+                ChatUtil.sendActionBar(player, msg
                         .replace("%uses%", String.valueOf(uses))
                         .replace("%balance%", econ.format(response.balance))
                         .replace("%price%", econ.format(response.amount)));
@@ -116,7 +117,7 @@ public class PlayerListener implements Listener {
 
         // Send to log file
         String coords = Math.round(player.getLocation().x()) + " " + Math.round(player.getLocation().y()) + " " + Math.round(player.getLocation().z());
-        ChatUtils.writeLog(player.getUniqueId() + " sold $" + Math.round(response.amount) + " ($" + Math.round(response.balance) + ") at " + coords + " in " + player.getWorld().getName());
+        ChatUtil.writeLog(player.getUniqueId() + " sold $" + Math.round(response.amount) + " ($" + Math.round(response.balance) + ") at " + coords + " in " + player.getWorld().getName());
 
         // Play sound
         if (SellstickConfig.sound) {
@@ -130,7 +131,7 @@ public class PlayerListener implements Listener {
         if (uses <= 0) {
             player.getInventory().removeItem(sellStick);
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f);
-            ChatUtils.sendMsg(player, SellstickConfig.brokenStick, true);
+            ChatUtil.sendMsg(player, SellstickConfig.brokenStick, true);
         }
     }
 }

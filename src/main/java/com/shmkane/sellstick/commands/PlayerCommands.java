@@ -2,7 +2,7 @@ package com.shmkane.sellstick.commands;
 
 import com.shmkane.sellstick.configs.SellstickConfig;
 import com.shmkane.sellstick.stick.StickHandler;
-import com.shmkane.sellstick.utilities.ChatUtils;
+import com.budgienet.chatutil.ChatUtil;
 import com.shmkane.sellstick.utilities.EventUtils;
 import com.shmkane.sellstick.utilities.MergeUtils;
 import dev.jorel.commandapi.executors.CommandArguments;
@@ -20,7 +20,7 @@ public class PlayerCommands {
      */
     public void toggle(CommandSender sender, CommandArguments arguments) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Only players can use this command.");
+            ChatUtil.sendMsg(sender, "Only players can use this command.", false);
             return;
         }
 
@@ -30,7 +30,7 @@ public class PlayerCommands {
         boolean newPreference = EventUtils.getPlayerPreference(playerUUID);
         String message = newPreference ? "Sell messages will now be sent in chat."
                 : "Sell messages will now be sent in the action bar.";
-        ChatUtils.sendMsg(player, message, true);
+        ChatUtil.sendMsg(player, message, true);
 
     }
 
@@ -50,13 +50,13 @@ public class PlayerCommands {
 
         // Check if player has any sellsticks
         if (sellsticks.length == 0) {
-            ChatUtils.sendMsg(player, "<red>You have no sellsticks in your inventory!", true);
+            ChatUtil.sendMsg(player, "<red>You have no sellsticks in your inventory!", true);
             return;
         }
 
         // Check if player has at least 2 sellsticks
         if (sellsticks.length == 1) {
-            ChatUtils.sendMsg(player, "<yellow>You need at least 2 sellsticks to merge!", true);
+            ChatUtil.sendMsg(player, "<yellow>You need at least 2 sellsticks to merge!", true);
             return;
         }
 
@@ -79,10 +79,10 @@ public class PlayerCommands {
             // Give a new sellstick with a number of uses equalling usesSum
             StickHandler.giveSellStickToPlayer(player, usesSum);
 
-            ChatUtils.sendMsg(player, "<green>All sellsticks merged successfully!", true);
+            ChatUtil.sendMsg(player, "<green>All sellsticks merged successfully!", true);
 
         } else {
-            ChatUtils.sendMsg(player, "<red>Sellsticks exceed the maximum allowed merged uses.", true);
+            ChatUtil.sendMsg(player, "<red>Sellsticks exceed the maximum allowed merged uses.", true);
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.shmkane.sellstick.configs;
 
 import com.shmkane.sellstick.SellStick;
-import com.shmkane.sellstick.utilities.ChatUtils;
+import com.budgienet.chatutil.ChatUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
@@ -83,7 +83,7 @@ public class SellstickConfig extends Config {
                 return PriceSource.PRICESYML;
             }
         } else {
-            ChatUtils.log(Level.WARNING, "PriceSource did not match any option. Defaulting to prices.yml.");
+            ChatUtil.log(Level.WARNING, "PriceSource did not match any option. Defaulting to prices.yml.");
             return PriceSource.PRICESYML;
         }
         return PriceSource.PRICESYML;

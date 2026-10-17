@@ -11,6 +11,15 @@ java.sourceCompatibility = JavaVersion.VERSION_25
 java.targetCompatibility = JavaVersion.VERSION_25
 
 repositories {
+    maven {
+        // com.budgienet:chatutil - needs gpr.user / gpr.key (read:packages token) in ~/.gradle/gradle.properties
+        url = uri("https://maven.pkg.github.com/BudgieNet/ChatUtil")
+        credentials {
+            username = findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+            password = findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+        }
+        content { includeGroup("com.budgienet") }
+    }
     mavenCentral()
     maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
     maven { url = uri("https://ci.ender.zone/plugin/repository/everything/") }
@@ -26,6 +35,7 @@ dependencies {
     // 12.1.0 shade jar is self-contained; its shadowed-variant metadata lists unpublished modules
     implementation("dev.jorel:commandapi-paper-shade:12.1.0") { isTransitive = false }
     compileOnly("io.papermc.paper:paper-api:26.3.build.200-stable")
+    implementation("com.budgienet:chatutil:1.1.0")
     compileOnly("net.milkbowl.vault:VaultUnlockedAPI:2.20")
     compileOnly("net.essentialsx:EssentialsX:2.21.2")
     compileOnly("com.github.brcdev-minecraft:shopgui-api:3.2.0")
@@ -50,6 +60,7 @@ tasks.processResources {
 }
 
 tasks.withType<ShadowJar> {
+    relocate("com.budgienet.chatutil", "com.shmkane.sellstick.chatutil")
     relocate("de.tr7zw.changeme.nbtapi", project.properties["mainClass"] as String + ".nbtapi")
     relocate("dev.jorel.commandapi", project.properties["mainClass"] as String + ".commandapi")
     manifest {

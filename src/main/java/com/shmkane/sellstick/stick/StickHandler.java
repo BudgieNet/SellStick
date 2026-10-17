@@ -1,7 +1,7 @@
 package com.shmkane.sellstick.stick;
 
 import com.shmkane.sellstick.configs.SellstickConfig;
-import com.shmkane.sellstick.utilities.ChatUtils;
+import com.budgienet.chatutil.ChatUtil;
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadableNBT;
 import net.kyori.adventure.text.Component;
@@ -76,10 +76,10 @@ public class StickHandler {
             Location l = target.getLocation();
             // Drop item on player
             target.getWorld().dropItem(l, sellStick);
-            ChatUtils.sendMsg(target, "&cInventory full! Sellstick was dropped on the ground!");
+            ChatUtil.sendMsg(target, "&cInventory full! Sellstick was dropped on the ground!");
 
             String locationString = l.getWorld().getName() + " [" + Math.round(l.x()) + " "  + Math.round(l.y()) + " "  + Math.round(l.z()) + "]" ;
-            ChatUtils.log("Gave " + target.displayName() + " a sellstick but inv was full. Item dropped at " + locationString);
+            ChatUtil.log("Gave " + target.displayName() + " a sellstick but inv was full. Item dropped at " + locationString);
         } else {
             // Add to inventory
             target.getInventory().addItem(sellStick);
@@ -208,16 +208,16 @@ public class StickHandler {
                 uses = Integer.MAX_VALUE;
                 break;
             }
-            ChatUtils.log("Checking for uses: " + text);
+            ChatUtil.log("Checking for uses: " + text);
             Pattern pattern = Pattern.compile("(\\s|^|:)(\\d+)(\\s|$)");
             Matcher matcher = pattern.matcher(text);
             if (matcher.find()) {
                 try {
-                    ChatUtils.log("Found uses: " + matcher.group(2));
+                    ChatUtil.log("Found uses: " + matcher.group(2));
                     uses = Integer.parseInt(matcher.group(2));
                     break;
                 } catch (NumberFormatException e) {
-                    ChatUtils.error("Error parsing uses from old sellstick: " + e.getMessage());
+                    ChatUtil.error("Error parsing uses from old sellstick: " + e.getMessage());
                     return null;
                 }
             }

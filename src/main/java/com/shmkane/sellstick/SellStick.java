@@ -1,11 +1,12 @@
 package com.shmkane.sellstick;
 
+import com.budgienet.chatutil.TextFormat;
 import com.earth2me.essentials.IEssentials;
 import com.shmkane.sellstick.commands.CommandManager;
 import com.shmkane.sellstick.configs.PriceConfig;
 import com.shmkane.sellstick.configs.SellstickConfig;
 import com.shmkane.sellstick.events.PlayerListener;
-import com.shmkane.sellstick.utilities.ChatUtils;
+import com.budgienet.chatutil.ChatUtil;
 
 import de.tr7zw.changeme.nbtapi.NBT;
 import dev.jorel.commandapi.CommandAPI;
@@ -45,13 +46,16 @@ public class SellStick extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        ChatUtil.init(this)
+                .prefix(() -> SellstickConfig.prefix)
+                .format(TextFormat.AUTO);
         plugin = this;
         CommandAPI.onLoad(new CommandAPIPaperConfig(this).silentLogs(true));
         CommandAPI.onEnable();
 
         // Don
         if (!NBT.preloadApi()) {
-            ChatUtils.error("NBT-API wasn't initialized properly, disabling the plugin");
+            ChatUtil.error("NBT-API wasn't initialized properly, disabling the plugin");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -97,12 +101,12 @@ public class SellStick extends JavaPlugin {
     // Vault Economy Provider
     private boolean setupEconomy() {
         if (getServer().getPluginManager().getPlugin("Vault") == null) {
-            ChatUtils.error("No Vault dependency found! Disabling plugin.");
+            ChatUtil.error("No Vault dependency found! Disabling plugin.");
             return false;
         }
         RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
         if (rsp == null) {
-            ChatUtils.error("No Economy service found! Disabling plugin.");
+            ChatUtil.error("No Economy service found! Disabling plugin.");
             return false;
         }
         econ = rsp.getProvider();
